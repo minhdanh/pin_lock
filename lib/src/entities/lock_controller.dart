@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:pin_lock/src/entities/biometric_method.dart';
-import 'package:pin_lock/src/entities/lock_state.dart';
+import 'package:pin_lock/src/entities/pin_lock_state.dart';
 
 /// Keeps track of the lock state of the app while it's active.
 /// It allows registering callbacks that will get triggered when the
 /// app is locked/unlocked (e.g., for analytics purposes)
 class LockController {
-  /// The stream of [LockState] where the last entry is always the current
+  /// The stream of [PinLockState] where the last entry is always the current
   /// state of the app
-  late final Stream<LockState> state;
+  late final Stream<PinLockState> state;
 
   /// Optionally register a callback that gets triggered every time the app is locked
   /// (e.g., for analytics purposes)
@@ -20,7 +20,7 @@ class LockController {
   /// (e.g., for analytics purposes)
   final VoidCallback? onUnlockCallback;
 
-  final StreamController<LockState> _streamController;
+  final StreamController<PinLockState> _streamController;
 
   LockController({this.onUnlockCallback, this.onLockCallback})
       : _streamController = StreamController.broadcast() {

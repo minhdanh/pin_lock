@@ -38,7 +38,7 @@ class AuthenticatorImpl with WidgetsBindingObserver implements Authenticator {
   );
 
   @override
-  Stream<LockState> get lockState {
+  Stream<PinLockState> get lockState {
     _checkInitialLockStatus();
     return _lockController.state;
   }
@@ -227,13 +227,15 @@ class AuthenticatorImpl with WidgetsBindingObserver implements Authenticator {
     if (!isSupported) {
       return const Unavailable(reason: LocalAuthFailure.notAvailable);
     }
-    final storedValue = await _repository.isBiometricAuthenticationEnabled(userId: userId);
+    final storedValue =
+        await _repository.isBiometricAuthenticationEnabled(userId: userId);
     return Available(isEnabled: storedValue ?? false);
   }
 
   @override
   Future<bool> isPinAuthenticationEnabled() async {
-    final storedValue = await _repository.isPinAuthenticationEnabled(userId: userId);
+    final storedValue =
+        await _repository.isPinAuthenticationEnabled(userId: userId);
     return storedValue ?? false;
   }
 
@@ -270,7 +272,8 @@ class AuthenticatorImpl with WidgetsBindingObserver implements Authenticator {
   Future<Either<LocalAuthFailure, Unit>> unlockWithBiometrics({
     required String userFacingExplanation,
   }) async {
-    final biometricAvailability = await getBiometricAuthenticationAvailability();
+    final biometricAvailability =
+        await getBiometricAuthenticationAvailability();
     if (biometricAvailability is Available) {
       if (!biometricAvailability.isEnabled) {
         _lockController.lock(availableMethods: const []);
@@ -333,9 +336,11 @@ class AuthenticatorImpl with WidgetsBindingObserver implements Authenticator {
   }
 
   Future<bool> _isLockedDueToTooManyAttempts() async {
-    final failedAttemptsList = await _repository.getListOfFailedAttempts(userId: userId);
+    final failedAttemptsList =
+        await _repository.getListOfFailedAttempts(userId: userId);
     if (failedAttemptsList.length >= maxTries) {
-      if (DateTime.now().difference(failedAttemptsList.last) < lockedOutDuration) {
+      if (DateTime.now().difference(failedAttemptsList.last) <
+          lockedOutDuration) {
         return true;
       }
     }

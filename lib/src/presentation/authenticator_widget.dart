@@ -70,7 +70,7 @@ class _AuthenticatorWidgetState extends State<AuthenticatorWidget> {
   late final StreamSubscription lockSubscription;
   OverlayEntry? overlayEntry;
   bool _isShowingSplashScreen = true;
-  late final Stream<LockState> lockState ;
+  late final Stream<PinLockState> lockState;
 
   @override
   void initState() {
@@ -94,7 +94,8 @@ class _AuthenticatorWidgetState extends State<AuthenticatorWidget> {
               builder: widget.lockScreenBuilder,
               inputNodeBuilder: widget.inputNodeBuilder,
               availableMethods: event.availableBiometricMethods,
-              userFacingMessage: widget.userFacingBiometricAuthenticationMessage,
+              userFacingMessage:
+                  widget.userFacingBiometricAuthenticationMessage,
             ),
           );
           if (!_isShowingSplashScreen) {
@@ -123,13 +124,14 @@ class _AuthenticatorWidgetState extends State<AuthenticatorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<LockState>(
+    return StreamBuilder<PinLockState>(
       stream: lockState,
       builder: (context, snapshot) {
         if (snapshot.hasData && !_isShowingSplashScreen) {
           return widget.child;
         }
-        return widget.splashScreenBuilder?.call() ?? const Center(child: CircularProgressIndicator());
+        return widget.splashScreenBuilder?.call() ??
+            const Center(child: CircularProgressIndicator());
       },
     );
   }
@@ -172,7 +174,8 @@ class _LockScreen extends StatelessWidget {
               error: state.error,
               availableBiometricMethods: availableMethods,
               onBiometricAuthenticationRequested: () {
-                BlocProvider.of<LockCubit>(context).unlockWithBiometrics(userFacingMessage);
+                BlocProvider.of<LockCubit>(context)
+                    .unlockWithBiometrics(userFacingMessage);
               },
             ),
           ),
