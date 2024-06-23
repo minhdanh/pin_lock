@@ -100,7 +100,7 @@ class _AuthenticatorWidgetState extends State<AuthenticatorWidget> {
           );
           if (!_isShowingSplashScreen) {
             // As of flutter 3.7.0 these will be non-null. For they are kept in place.
-            Overlay.of(context)?.insert(overlayEntry!);
+            Overlay.of(context).insert(overlayEntry!);
           }
         }
       }
@@ -110,7 +110,7 @@ class _AuthenticatorWidgetState extends State<AuthenticatorWidget> {
         _isShowingSplashScreen = false;
         if (overlayEntry != null) {
           // As of flutter 3.7.0 these will be non-null. For they are kept in place.
-          Overlay.of(context)?.insert(overlayEntry!);
+          Overlay.of(context).insert(overlayEntry!);
         }
       });
     });
