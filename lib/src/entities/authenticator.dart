@@ -75,6 +75,10 @@ abstract class Authenticator with WidgetsBindingObserver {
   /// biometric authentication
   Future<bool> isPinAuthenticationEnabled();
 
+  /// Returns the remaining [Duration] for which the authentication is blocked due to too
+  /// many incorrect attempts. Returns `null` when authentication is not blocked.
+  Future<Duration?> getAuthenticationBlockDuration();
+
   /// Triggers the OS's biometric authentication and changes the [lockState] if successful
   Future<Either<LocalAuthFailure, Unit>> unlockWithBiometrics({
     required String userFacingExplanation,

@@ -31,14 +31,34 @@ export 'package:pin_lock/src/repositories/pin_repository_impl.dart';
 class PinLock {
   PinLock._();
   static const MethodChannel _channel = MethodChannel('pin_lock');
+  static bool _hideAppContentPreference = true;
+  static bool? _isPinAuthenticationEnabled;
+  static String? _iosAssetImage;
 
   static void setHideAppContent({
     required bool preference,
     String? iosAssetImage,
   }) {
+    _hideAppContentPreference = preference;
+    if (iosAssetImage != null) {
+      _iosAssetImage = iosAssetImage;
+    }
+    _updateHideAppContentPreference();
+  }
+
+  static void updatePinAuthenticationStatus({required bool isEnabled}) {
+    _isPinAuthenticationEnabled = isEnabled;
+    _updateHideAppContentPreference();
+  }
+
+  static void _updateHideAppContentPreference() {
     _channel.invokeMethod(
       'setHideAppContent',
-      {'shouldHide': preference, 'iosAsset': iosAssetImage},
+      {
+        'shouldHide':
+            _hideAppContentPreference && (_isPinAuthenticationEnabled ?? true),
+        'iosAsset': _iosAssetImage,
+      },
     );
   }
 

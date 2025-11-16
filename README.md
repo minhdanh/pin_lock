@@ -30,10 +30,10 @@ The aim of the pin lock package is to provide a solid implemetation of the under
 	* ✅  changing pin (requires current pin, new pin and new pin confirmation)
 
 #### Planned
-* ⬜️ TODO: Hiding the app preview only if pin code is enabled.
-* ⬜️ TODO: Refine blocking authentication after `x` incorrect pin inputs
-	* ⬜️ TODO: Make pin input `disabled` when authentication is blocked
-	* ⬜️ TODO: Pass the duration for which the authentication is blocked to the UI
+* ✅  Hiding the app preview only if pin code is enabled.
+* ✅  Refine blocking authentication after `x` incorrect pin inputs
+	* ✅  Make pin input `disabled` when authentication is blocked
+	* ✅  Pass the duration for which the authentication is blocked to the UI
 * ⬜️ TODO: Implement an optional secondary pin (like a safety question) that enables unlocking the app if the primary pin is forgotten
 * ⬜️ TODO: Add an optional logout button to the locked screen, enabling the user to change the account without uninstalling the app.
 
@@ -116,6 +116,8 @@ The core parameters of `AuthenticatorWidget` are:
 - `child` - which is you application's normal widget tree
 - `pinNodeBuilder` - which is a builder function through which you provide information about what the individual input fields should look like, given the `state` that they are in
 - `lockScreenBuilder` - which is another builder function through which you describe what you want your whole pin input screen to look like (given the `LockScreenConfiguration`)
+
+`LockScreenConfiguration` now also exposes whether the pin input should be interactive (`isPinInputEnabled`) and the remaining lockout duration (`authenticationBlockedDuration`) after too many failed attempts so that you can update your UI accordingly (for example showing a countdown or disabling action buttons).
 
 If you want the app to be locked (show the lock screen) after a specified amount of time of it being in the background, don't forget to include [`WidgetsBindingObserver` step](#WidgetsBindingObserver).
 

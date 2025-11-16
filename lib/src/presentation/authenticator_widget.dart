@@ -80,6 +80,11 @@ class _AuthenticatorWidgetState extends State<AuthenticatorWidget> {
       preference: widget.hideAppContent,
       iosAssetImage: widget.iosImageAsset,
     );
+    widget.authenticator.isPinAuthenticationEnabled().then((isEnabled) {
+      if (mounted) {
+        PinLock.updatePinAuthenticationStatus(isEnabled: isEnabled);
+      }
+    });
     lockSubscription = lockState.listen((event) {
       if (event is Unlocked) {
         overlayEntry?.remove();
@@ -157,7 +162,7 @@ class _LockScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       child: BlocProvider<LockCubit>(
-        create: (context) => LockCubit(authenticator),
+        create: (context) => LockCubit(authenticator)..initialize(),
         child: BlocBuilder<LockCubit, LockScreenState>(
           builder: (context, state) => builder(
             LockScreenConfiguration(
@@ -169,6 +174,7 @@ class _LockScreen extends StatelessWidget {
                 },
                 inputNodeBuilder: inputNodeBuilder,
                 hasError: state.error != null,
+                isInteractionEnabled: state.isPinInputEnabled,
               ),
               isLoading: state.isLoading,
               error: state.error,
@@ -177,6 +183,8 @@ class _LockScreen extends StatelessWidget {
                 BlocProvider.of<LockCubit>(context)
                     .unlockWithBiometrics(userFacingMessage);
               },
+              isPinInputEnabled: state.isPinInputEnabled,
+              authenticationBlockedDuration: state.authenticationBlockedFor,
             ),
           ),
         ),

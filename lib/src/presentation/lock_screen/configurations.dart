@@ -28,12 +28,23 @@ class LockScreenConfiguration extends Equatable {
   /// an appropriate error message to the user
   final LocalAuthFailure? error;
 
+  /// Whether the user can currently interact with the pin input widget.
+  /// When too many incorrect attempts are made, pin entry should be disabled
+  /// until the lockout period expires.
+  final bool isPinInputEnabled;
+
+  /// If authentication is blocked due to too many incorrect attempts, this
+  /// contains the remaining [Duration] of the lockout.
+  final Duration? authenticationBlockedDuration;
+
   const LockScreenConfiguration({
     required this.pinInputWidget,
     required this.isLoading,
     required this.error,
     required this.availableBiometricMethods,
     required this.onBiometricAuthenticationRequested,
+    required this.isPinInputEnabled,
+    this.authenticationBlockedDuration,
   });
 
   @override
@@ -43,5 +54,7 @@ class LockScreenConfiguration extends Equatable {
         error,
         availableBiometricMethods,
         onBiometricAuthenticationRequested,
+        isPinInputEnabled,
+        authenticationBlockedDuration,
       ];
 }

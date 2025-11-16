@@ -196,6 +196,17 @@ class _LockScreen extends StatelessWidget {
             Text(
               configuration.error.toString(),
               style: const TextStyle(color: Colors.red),
+            ),
+
+          if (!configuration.isPinInputEnabled)
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Text(
+                configuration.authenticationBlockedDuration != null
+                    ? 'Try again in '
+                        '${configuration.authenticationBlockedDuration!.inSeconds} seconds'
+                    : 'Pin entry temporarily disabled',
+              ),
             )
         ],
       ),

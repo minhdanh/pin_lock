@@ -100,6 +100,7 @@ class AuthenticatorImpl with WidgetsBindingObserver implements Authenticator {
     }
     try {
       await _repository.enablePinAuthentication(pin: pin, userId: userId);
+      PinLock.updatePinAuthenticationStatus(isEnabled: true);
       return const Right(unit);
     } catch (e) {
       return const Left(LocalAuthFailure.unknown);
@@ -133,6 +134,7 @@ class AuthenticatorImpl with WidgetsBindingObserver implements Authenticator {
     if (!force) {
       final isAuthenticationEnabled = await isPinAuthenticationEnabled();
       if (!isAuthenticationEnabled) {
+        PinLock.updatePinAuthenticationStatus(isEnabled: false);
         return const Right(unit);
       }
       final correctPin = await _repository.getPin(forUser: userId);
@@ -142,6 +144,7 @@ class AuthenticatorImpl with WidgetsBindingObserver implements Authenticator {
     }
     try {
       await _repository.disableLocalAuthentication(userId: userId);
+      PinLock.updatePinAuthenticationStatus(isEnabled: false);
       _lockController.unlock();
       return const Right(unit);
     } catch (e) {
@@ -237,6 +240,22 @@ class AuthenticatorImpl with WidgetsBindingObserver implements Authenticator {
     final storedValue =
         await _repository.isPinAuthenticationEnabled(userId: userId);
     return storedValue ?? false;
+  }
+
+  @override
+  Future<Duration?> getAuthenticationBlockDuration() async {
+    final failedAttemptsList =
+        await _repository.getListOfFailedAttempts(userId: userId);
+    if (failedAttemptsList.length < maxTries) {
+      return null;
+    }
+    final lastAttempt = failedAttemptsList.last;
+    final elapsed = DateTime.now().difference(lastAttempt);
+    final remaining = lockedOutDuration - elapsed;
+    if (remaining.isNegative || remaining == Duration.zero) {
+      return null;
+    }
+    return remaining;
   }
 
   /// -- Usage --

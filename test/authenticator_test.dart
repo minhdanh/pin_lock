@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:mockito/annotations.dart';
@@ -17,6 +18,7 @@ import 'authenticator_test.mocks.dart';
   [LocalAuthenticationRepository, LocalAuthentication, LockController],
 )
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late MockLocalAuthenticationRepository repository;
   late MockLocalAuthentication localAuth;
   late LockController lockController;
@@ -24,6 +26,7 @@ void main() {
   late Authenticator authenticator;
 
   setUp(() {
+    const MethodChannel('pin_lock').setMockMethodCallHandler((_) async {});
     localAuth = MockLocalAuthentication();
     repository = MockLocalAuthenticationRepository();
     lockController = MockLockController();
@@ -61,6 +64,47 @@ void main() {
 
       final response = await authenticator.isPinAuthenticationEnabled();
       expect(response, false);
+    });
+  });
+
+  group('getAuthenticationBlockDuration()', () {
+    test('returns null when there are not enough failed attempts', () async {
+      when(repository.getListOfFailedAttempts(userId: UserId('1'))).thenAnswer(
+        (_) async => [DateTime.now()],
+      );
+
+      final response = await authenticator.getAuthenticationBlockDuration();
+      expect(response, isNull);
+    });
+
+    test('returns remaining duration when still locked out', () async {
+      final now = DateTime.now();
+      when(repository.getListOfFailedAttempts(userId: UserId('1'))).thenAnswer(
+        (_) async => [
+          now.subtract(const Duration(seconds: 6)),
+          now.subtract(const Duration(seconds: 5)),
+          now.subtract(const Duration(seconds: 4)),
+          now.subtract(const Duration(seconds: 3)),
+          now.subtract(const Duration(seconds: 1)),
+        ],
+      );
+
+      final response = await authenticator.getAuthenticationBlockDuration();
+      expect(response, isNotNull);
+      expect(response!.inSeconds, inInclusiveRange(1, authenticator.lockedOutDuration.inSeconds));
+    });
+
+    test('returns null when lockout duration has passed', () async {
+      final now = DateTime.now();
+      when(repository.getListOfFailedAttempts(userId: UserId('1'))).thenAnswer(
+        (_) async => List<DateTime>.generate(
+          5,
+          (_) => now.subtract(authenticator.lockedOutDuration + const Duration(seconds: 1)),
+        ),
+      );
+
+      final response = await authenticator.getAuthenticationBlockDuration();
+      expect(response, isNull);
     });
   });
 

@@ -9,6 +9,7 @@ class PinInputWidget extends StatefulWidget {
   final Function(String) onInput;
   final bool autofocus;
   final bool hasError;
+  final bool isInteractionEnabled;
 
   final PinInputBuilder inputNodeBuilder;
 
@@ -19,6 +20,7 @@ class PinInputWidget extends StatefulWidget {
     required this.onInput,
     required this.inputNodeBuilder,
     required this.hasError,
+    this.isInteractionEnabled = true,
     this.focusNode,
     this.nextFocusNode,
     this.autofocus = false,
@@ -55,6 +57,9 @@ class _PinInputWidgetState extends State<PinInputWidget> {
     if (controller.text != widget.value) {
       controller.clear();
     }
+    if (!widget.isInteractionEnabled && focusNode.hasFocus) {
+      focusNode.unfocus();
+    }
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -85,6 +90,7 @@ class _PinInputWidgetState extends State<PinInputWidget> {
                   focusNode: focusNode,
                   keyboardType: TextInputType.number,
                   maxLength: widget.pinLength,
+                  enabled: widget.isInteractionEnabled,
                   onChanged: (text) {
                     widget.onInput(text);
                     if (text.length == widget.pinLength && focusNode.hasFocus == true) {
