@@ -116,6 +116,7 @@ The core parameters of `AuthenticatorWidget` are:
 - `child` - which is you application's normal widget tree
 - `pinNodeBuilder` - which is a builder function through which you provide information about what the individual input fields should look like, given the `state` that they are in
 - `lockScreenBuilder` - which is another builder function through which you describe what you want your whole pin input screen to look like (given the `LockScreenConfiguration`)
+- `blockScreenshotsOnAndroid` - controls whether Android should set `FLAG_SECURE` while hiding the app preview. Set it to `false` if you need to allow screenshots while the lock screen is shown (note that doing so also keeps the system app preview visible).
 
 `LockScreenConfiguration` now also exposes whether the pin input should be interactive (`isPinInputEnabled`) and the remaining lockout duration (`authenticationBlockedDuration`) after too many failed attempts so that you can update your UI accordingly (for example showing a countdown or disabling action buttons).
 

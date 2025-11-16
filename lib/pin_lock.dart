@@ -34,15 +34,18 @@ class PinLock {
   static bool _hideAppContentPreference = true;
   static bool? _isPinAuthenticationEnabled;
   static String? _iosAssetImage;
+  static bool _blockScreenshotsPreference = true;
 
   static void setHideAppContent({
     required bool preference,
     String? iosAssetImage,
+    bool blockScreenshots = true,
   }) {
     _hideAppContentPreference = preference;
     if (iosAssetImage != null) {
       _iosAssetImage = iosAssetImage;
     }
+    _blockScreenshotsPreference = blockScreenshots;
     _updateHideAppContentPreference();
   }
 
@@ -58,6 +61,7 @@ class PinLock {
         'shouldHide':
             _hideAppContentPreference && (_isPinAuthenticationEnabled ?? true),
         'iosAsset': _iosAssetImage,
+        'blockScreenshots': _blockScreenshotsPreference,
       },
     );
   }

@@ -49,6 +49,12 @@ class AuthenticatorWidget extends StatefulWidget {
   /// Ignored on Android.
   final String? iosImageAsset;
 
+  /// Android only! If `true`, screenshots are blocked via `FLAG_SECURE` whenever
+  /// [hideAppContent] is enabled. Set to `false` if you want to allow
+  /// screenshots even when the app is locked. Note that without
+  /// `FLAG_SECURE` Android will not hide the app preview in the app switcher.
+  final bool blockScreenshotsOnAndroid;
+
   const AuthenticatorWidget({
     Key? key,
     required this.authenticator,
@@ -60,6 +66,7 @@ class AuthenticatorWidget extends StatefulWidget {
     this.splashScreenDuration = Duration.zero,
     this.hideAppContent = true,
     this.iosImageAsset,
+    this.blockScreenshotsOnAndroid = true,
   }) : super(key: key);
 
   @override
@@ -79,6 +86,7 @@ class _AuthenticatorWidgetState extends State<AuthenticatorWidget> {
     PinLock.setHideAppContent(
       preference: widget.hideAppContent,
       iosAssetImage: widget.iosImageAsset,
+      blockScreenshots: widget.blockScreenshotsOnAndroid,
     );
     widget.authenticator.isPinAuthenticationEnabled().then((isEnabled) {
       if (mounted) {

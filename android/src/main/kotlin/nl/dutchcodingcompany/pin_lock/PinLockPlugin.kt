@@ -15,6 +15,8 @@ import io.flutter.plugin.common.MethodChannel.Result
 class PinLockPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var channel: MethodChannel
     private var activity: Activity? = null
+    private var hideAppContent: Boolean = true
+    private var blockScreenshots: Boolean = true
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "pin_lock")
@@ -26,11 +28,12 @@ class PinLockPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "setHideAppContent" -> {
                 (call.arguments as? Map<*, *>)?.let { arguments ->
                     (arguments["shouldHide"] as? Boolean)?.let { shouldHide ->
-                        when (shouldHide) {
-                            true -> activity?.window?.addFlags(LayoutParams.FLAG_SECURE)
-                            false -> activity?.window?.clearFlags(LayoutParams.FLAG_SECURE)
-                        }
+                        hideAppContent = shouldHide
                     }
+                    (arguments["blockScreenshots"] as? Boolean)?.let { block ->
+                        blockScreenshots = block
+                    }
+                    updateSecureFlag()
                 }
                 result.success(null)
             }
@@ -39,21 +42,33 @@ class PinLockPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     }
 
+    private fun updateSecureFlag() {
+        if (hideAppContent && blockScreenshots) {
+            activity?.window?.addFlags(LayoutParams.FLAG_SECURE)
+        } else {
+            activity?.window?.clearFlags(LayoutParams.FLAG_SECURE)
+        }
+    }
+
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activity = binding.activity
+        updateSecureFlag()
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+        activity = binding.activity
+        updateSecureFlag()
     }
 
     override fun onDetachedFromActivity() {
+        activity = null
     }
 
 
