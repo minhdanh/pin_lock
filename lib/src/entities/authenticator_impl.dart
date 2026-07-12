@@ -1,7 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
-import 'package:local_auth/error_codes.dart' as biometric_error;
 import 'package:local_auth/local_auth.dart';
 import 'package:pin_lock/pin_lock.dart';
 import 'package:pin_lock/src/entities/biometric_availability.dart';
@@ -305,14 +303,14 @@ class AuthenticatorImpl with WidgetsBindingObserver implements Authenticator {
       try {
         final isSuccessful = await _biometricAuth.authenticate(
           localizedReason: userFacingExplanation,
-          options: const AuthenticationOptions(biometricOnly: true),
+          biometricOnly: true,
         );
         if (isSuccessful) {
           _lockController.unlock();
           return const Right(unit);
         }
         return const Left(LocalAuthFailure.biometricAuthenticationFailed);
-      } on PlatformException catch (e) {
+      } on LocalAuthException catch (e) {
         return Left(e.toLocalAuthFailure());
       } catch (e) {
         return const Left(LocalAuthFailure.unknown);
@@ -390,19 +388,18 @@ class AuthenticatorImpl with WidgetsBindingObserver implements Authenticator {
   }
 }
 
-extension on PlatformException {
+extension on LocalAuthException {
   LocalAuthFailure toLocalAuthFailure() {
     switch (code) {
-      case biometric_error.lockedOut:
+      case LocalAuthExceptionCode.temporaryLockout:
         return LocalAuthFailure.tooManyAttempts;
-      case biometric_error.permanentlyLockedOut:
+      case LocalAuthExceptionCode.biometricLockout:
         return LocalAuthFailure.permanentlyLockedOut;
-      case biometric_error.notAvailable:
+      case LocalAuthExceptionCode.noBiometricHardware:
+      case LocalAuthExceptionCode.biometricHardwareTemporarilyUnavailable:
         return LocalAuthFailure.notAvailable;
-      case biometric_error.notEnrolled:
+      case LocalAuthExceptionCode.noBiometricsEnrolled:
         return LocalAuthFailure.noFingerprintsAvailable;
-      case biometric_error.otherOperatingSystem:
-        return LocalAuthFailure.platformNotSupported;
       default:
         return LocalAuthFailure.unknown;
     }
