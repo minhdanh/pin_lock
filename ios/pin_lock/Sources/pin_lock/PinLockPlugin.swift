@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 
 @available(iOS 12.0, *)
-public class SwiftPinLockPlugin: NSObject, FlutterPlugin {
+public class PinLockPlugin: NSObject, FlutterPlugin {
     
     internal let registrar: FlutterPluginRegistrar
     private let _overlayViewTag = 1620655620
@@ -17,7 +17,7 @@ public class SwiftPinLockPlugin: NSObject, FlutterPlugin {
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "pin_lock", binaryMessenger: registrar.messenger())
-        let instance = SwiftPinLockPlugin(registrar: registrar)
+        let instance = PinLockPlugin(registrar: registrar)
         registrar.addMethodCallDelegate(instance, channel: channel)
         channel.setMethodCallHandler({(call: FlutterMethodCall, result: FlutterResult)-> Void in
             if (call.method == "setHideAppContent"){
