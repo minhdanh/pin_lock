@@ -13,6 +13,11 @@ public class PinLockPlugin: NSObject, FlutterPlugin {
         self.registrar = registrar
         super.init()
         registrar.addApplicationDelegate(self)
+        if #available(iOS 13.0, *) {
+            if registrar.responds(to: Selector(("addSceneDelegate:"))) {
+                registrar.perform(Selector(("addSceneDelegate:")), with: self)
+            }
+        }
     }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -34,6 +39,24 @@ public class PinLockPlugin: NSObject, FlutterPlugin {
     }
     
     public func applicationDidEnterBackground(_ application: UIApplication) {
+        handleAppDidEnterBackground()
+    }
+    
+    public func applicationDidBecomeActive(_ application: UIApplication) {
+        handleAppDidBecomeActive()
+    }
+
+    @available(iOS 13.0, *)
+    public func sceneDidEnterBackground(_ scene: UIScene) {
+        handleAppDidEnterBackground()
+    }
+    
+    @available(iOS 13.0, *)
+    public func sceneDidBecomeActive(_ scene: UIScene) {
+        handleAppDidBecomeActive()
+    }
+
+    private func handleAppDidEnterBackground() {
         if (hideAppContent) {
             UIApplication.shared.ignoreSnapshotOnNextApplicationLaunch()
             if let window = UIApplication.shared.windows.filter({ (w) -> Bool in
@@ -62,7 +85,7 @@ public class PinLockPlugin: NSObject, FlutterPlugin {
         }
     }
     
-    public func applicationDidBecomeActive(_ application: UIApplication) {
+    private func handleAppDidBecomeActive() {
         if let window = UIApplication.shared.windows.filter({ (w) -> Bool in
             return w.isHidden == false
         }).first, let view = window.viewWithTag(_overlayViewTag) {
