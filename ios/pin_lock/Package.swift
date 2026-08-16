@@ -7,7 +7,8 @@ let package = Package(
         .iOS("12.0")
     ],
     products: [
-        .library(name: "pin_lock", targets: ["pin_lock"])
+        .library(name: "pin_lock", targets: ["pin_lock"]),
+        .library(name: "pin-lock", targets: ["pin_lock"])
     ],
     dependencies: [],
     targets: [
